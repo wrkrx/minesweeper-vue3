@@ -3,8 +3,6 @@ import Cell from './Cell.vue'
 import { ref } from 'vue'
 import { cellState } from '@/stores/enums.js'
 
-let gameOver = ref(false)
-
 const rowsCount = 16
 const colsCount = 16
 
@@ -87,6 +85,9 @@ for (let i = maxCell; i >= 0; i--) {
 }
 
 const cells = ref(cellsInit)
+let gameOver = ref(false)
+let gameOverMessage = ref(undefined)
+let gameOverGifUrl = ref(undefined)
 
 const revealCellByIndex = (cellIndex, shouldCheckWinCondition = true) => {
 	if (gameOver.value) return
@@ -142,17 +143,61 @@ const checkWinCondition = () => {
 	return nonMinedCellsCount == nonMinedRevealedCellsCount
 }
 const win = () => {
-	console.log('YOU WIN!')
 	gameOver.value = true
+	gameOverMessage.value = 'You win!'
+	displayRandomGifFromKeyword('victory')
 }
 const loose = () => {
-	console.log('You loose...')
 	gameOver.value = true
+	setTimeout(function () {
+		gameOverMessage.value = 'BOOOOOOOOM!!!'
+		displayRandomGifFromKeyword('explosion')
+	}, 500)
+}
+
+const displayRandomGifFromKeyword = (keyword) => {
+	// set the apikey and limit
+	const apikey = 'LIVDSRZULELA'
+	const limit = 20
+	// using default locale of en_US
+	var search_url = `https://g.tenor.com/v1/search?q=${keyword}&key=${apikey}&limit=${limit}`
+
+	// request the gif
+	httpGetAsync(search_url, (responsetext) => {
+		const randomGifIndex = Math.floor(Math.random() * limit)
+		var response_objects = JSON.parse(responsetext)
+		gameOverGifUrl.value = response_objects['results'][randomGifIndex]['media'][0]['gif']['url']
+	})
+}
+
+// url Async requesting function
+function httpGetAsync(theUrl, callback) {
+	// create the request object
+	var xmlHttp = new XMLHttpRequest()
+
+	// set the state change callback to capture when the response comes in
+	xmlHttp.onreadystatechange = function () {
+		if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+			callback(xmlHttp.responseText)
+		}
+	}
+
+	// open as a GET call, pass in the url and set async = True
+	xmlHttp.open('GET', theUrl, true)
+
+	// call send with no params as they were passed in on the url string
+	xmlHttp.send(null)
+
+	return
 }
 </script>
 
 <template>
-	<div class="minefield" :class="{ gameOver: gameOver, gameRunning: !gameOver }">
+	<div
+		v-if="!gameOverGifUrl"
+		class="minefield"
+		:class="{ gameOver: gameOver, gameRunning: !gameOver }"
+	>
 		<Cell
 			v-for="(cell, index) in cells"
 			:index="index"
@@ -162,6 +207,11 @@ const loose = () => {
 			@revealCellByIndex="revealCellByIndex"
 			@markCellByIndex="markCellByIndex"
 		/>
+	</div>
+
+	<div v-if="gameOverGifUrl" class="gameOverResult">
+		<p class="message">{{ gameOverMessage }}</p>
+		<img :src="gameOverGifUrl" />
 	</div>
 </template>
 
@@ -189,7 +239,7 @@ const loose = () => {
 	color: #444;
 	background: #999;
 	container-type: inline-size;
-	font-size: 1.5cqi;
+	font-size: 1.1cqi;
 }
 .cell .index {
 	font-size: 35cqi;
@@ -212,5 +262,18 @@ const loose = () => {
 }
 .cell.mined::before {
 	content: '⬤';
+}
+
+.gameOverResult {
+	display: flex;
+	flex-direction: column;
+}
+.gameOverResult .message {
+	text-align: center;
+	font-size: 2em;
+	color: hsla(160, 100%, 37%, 1);
+}
+.gameOverResult img {
+	margin: auto;
 }
 </style>
