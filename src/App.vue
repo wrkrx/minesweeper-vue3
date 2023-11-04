@@ -1,6 +1,6 @@
 <script setup>
-import MineSweeper from './components/MineSweeper.vue'
 import HelloWorld from './components/HelloWorld.vue'
+import MineSweeper from './components/MineSweeper.vue'
 </script>
 
 <template>

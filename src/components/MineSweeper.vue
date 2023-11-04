@@ -96,7 +96,6 @@ const onReveal = (cellIndex) => {
 		//  - stop clickhandler
 		//  - add restart button
 	} else if (cell.adjacentMinesCount == 0) {
-		// @todo: propagate the reveal to all adjacent cells
 		const adjacentIndices = getAdjacentCellsIndices(cellIndex)
 		for (var i = adjacentIndices.length - 1; i >= 0; i--) {
 			const adjacentIndex = adjacentIndices[i]
