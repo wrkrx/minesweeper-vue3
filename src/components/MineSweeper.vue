@@ -1,6 +1,7 @@
 <script setup>
 import Cell from './Cell.vue'
 import { ref } from 'vue'
+import { cellState } from '@/stores/enums.js'
 
 const rowsCount = 16
 const colsCount = 16
@@ -55,7 +56,7 @@ const cellsInit = Array(cellsCount)
 for (let i = maxCell; i >= 0; i--) {
 	cellsInit[i] = {
 		mined: false,
-		revealed: false,
+		state: cellState.fresh,
 		adjacentMinesCount: 0
 	}
 }
@@ -86,9 +87,10 @@ const cells = ref(cellsInit)
 const revealCellByIndex = (cellIndex) => {
 	const cell = cells.value[cellIndex]
 
-	if (cell.revealed) return
+	if (cell.state == cellState.revealed) return
+	if (cell.state == cellState.marked) return
 
-	cell.revealed = true
+	cell.state = cellState.revealed
 
 	if (cell.mined) {
 		// @todo: end the game
@@ -103,6 +105,17 @@ const revealCellByIndex = (cellIndex) => {
 		}
 	}
 }
+const markCellByIndex = (cellIndex) => {
+	const cell = cells.value[cellIndex]
+
+	if (cell.state == cellState.revealed) return
+
+	if (cell.state == cellState.marked) {
+		cell.state = cellState.fresh
+	} else {
+		cell.state = cellState.marked
+	}
+}
 </script>
 
 <template>
@@ -111,9 +124,10 @@ const revealCellByIndex = (cellIndex) => {
 			v-for="(cell, index) in cells"
 			:index="index"
 			:mined="cell.mined"
-			:revealed="cell.revealed"
+			:state="cell.state"
 			:adjacentMinesCount="cell.adjacentMinesCount"
 			@revealCellByIndex="revealCellByIndex"
+			@markCellByIndex="markCellByIndex"
 		/>
 	</div>
 </template>
@@ -146,12 +160,18 @@ const revealCellByIndex = (cellIndex) => {
 .cell .index {
 	font-size: 35cqi;
 }
-.cell.unrevealed {
-	border: 0.3rem outset #bbb;
+.cell.fresh {
 	cursor: pointer;
 }
-.cell.unrevealed:hover:active {
+.cell.fresh,
+.cell.marked {
+	border: 0.3rem outset #bbb;
+}
+.cell.fresh:hover:active {
 	border: none;
+}
+.cell.marked::before {
+	content: '🚩';
 }
 .cell.mined {
 	background: #ff4a4a;
