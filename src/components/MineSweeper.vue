@@ -139,6 +139,7 @@ const markCellByIndex = (cellIndex) => {
 	display: grid;
 	grid-template-columns: repeat(16, 1fr);
 	grid-template-rows: repeat(16, 1fr);
+	border: 0.6rem ridge #bbb;
 }
 @media (min-width: 1024px) {
 	.minefield {
