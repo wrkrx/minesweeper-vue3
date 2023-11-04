@@ -20,8 +20,8 @@ const getIndexFromCoords = (column, row) => {
 const getAdjacentCellsIndices = (index) => {
 	let result = []
 
-	let column = index % rowsCount
-	let row = Math.floor(index / rowsCount)
+	const column = index % rowsCount
+	const row = Math.floor(index / rowsCount)
 
 	if (row > 0) {
 		// check upper cell
@@ -52,7 +52,7 @@ const getAdjacentCellsIndices = (index) => {
 const cellsInit = Array(cellsCount)
 
 // build list of default cells
-for (var i = maxCell; i >= 0; i--) {
+for (let i = maxCell; i >= 0; i--) {
 	cellsInit[i] = {
 		mined: false,
 		revealed: false,
@@ -63,16 +63,16 @@ for (var i = maxCell; i >= 0; i--) {
 // place mines by shuffling cells and selecting x first cells
 // @todo: implement a better randomisation of the cells
 const shuffledCells = cellsInit.toSorted(() => 0.5 - Math.random())
-let selectedCells = shuffledCells.slice(0, minesCount)
-for (var i = selectedCells.length - 1; i >= 0; i--) {
+const selectedCells = shuffledCells.slice(0, minesCount)
+for (let i = selectedCells.length - 1; i >= 0; i--) {
 	selectedCells[i].mined = true
 }
 
 // compute adjacent mines number for each cells
-for (var i = maxCell; i >= 0; i--) {
+for (let i = maxCell; i >= 0; i--) {
 	const adjacentIndices = getAdjacentCellsIndices(i)
-	for (var j = adjacentIndices.length - 1; j >= 0; j--) {
-		let adjacentIndex = adjacentIndices[j]
+	for (let j = adjacentIndices.length - 1; j >= 0; j--) {
+		const adjacentIndex = adjacentIndices[j]
 		if (adjacentIndex >= 0 && adjacentIndex < cellsCount) {
 			if (cellsInit[adjacentIndex].mined) {
 				cellsInit[i].adjacentMinesCount++
@@ -97,7 +97,7 @@ const onReveal = (cellIndex) => {
 		//  - add restart button
 	} else if (cell.adjacentMinesCount == 0) {
 		const adjacentIndices = getAdjacentCellsIndices(cellIndex)
-		for (var i = adjacentIndices.length - 1; i >= 0; i--) {
+		for (let i = adjacentIndices.length - 1; i >= 0; i--) {
 			const adjacentIndex = adjacentIndices[i]
 			onReveal(adjacentIndex)
 		}
