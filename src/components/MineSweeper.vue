@@ -3,6 +3,8 @@ import Cell from './Cell.vue'
 import { ref } from 'vue'
 import { cellState } from '@/stores/enums.js'
 
+let gameOver = ref(false)
+
 const rowsCount = 16
 const colsCount = 16
 
@@ -87,6 +89,8 @@ for (let i = maxCell; i >= 0; i--) {
 const cells = ref(cellsInit)
 
 const revealCellByIndex = (cellIndex, shouldCheckWinCondition = true) => {
+	if (gameOver.value) return
+
 	const cell = cells.value[cellIndex]
 
 	if (cell.state == cellState.revealed) return
@@ -115,6 +119,7 @@ const revealCellByIndex = (cellIndex, shouldCheckWinCondition = true) => {
 	}
 }
 const markCellByIndex = (cellIndex) => {
+	if (gameOver.value) return
 	const cell = cells.value[cellIndex]
 
 	if (cell.state == cellState.revealed) return
@@ -138,14 +143,16 @@ const checkWinCondition = () => {
 }
 const win = () => {
 	console.log('YOU WIN!')
+	gameOver.value = true
 }
 const loose = () => {
 	console.log('You loose...')
+	gameOver.value = true
 }
 </script>
 
 <template>
-	<div class="minefield">
+	<div class="minefield" :class="{ gameOver: gameOver, gameRunning: !gameOver }">
 		<Cell
 			v-for="(cell, index) in cells"
 			:index="index"
@@ -187,14 +194,14 @@ const loose = () => {
 .cell .index {
 	font-size: 35cqi;
 }
-.cell.fresh {
-	cursor: pointer;
-}
 .cell.fresh,
 .cell.marked {
 	border: 0.3rem outset #bbb;
 }
-.cell.fresh:hover:active {
+.gameRunning .cell.fresh {
+	cursor: pointer;
+}
+.gameRunning .cell.fresh:hover:active {
 	border: none;
 }
 .cell.marked::before {
