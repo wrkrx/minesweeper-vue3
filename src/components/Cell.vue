@@ -1,4 +1,5 @@
 <script setup>
+import { config } from '@/stores/config.js'
 
 const props = defineProps({
 	index: {
@@ -27,7 +28,7 @@ const emit = defineEmits(['reveal'])
 		:class="{ unrevealed: !revealed, mined: revealed && mined }"
 		@click.stop="$emit('reveal', index)"
 	>
-		<!-- <div class="index" v-if="!revealed">{{ index }}</div> -->
+		<div class="index" v-if="config.debug && !revealed">{{ index }}</div>
 		<div class="adjacentMinesCount" v-if="revealed && !mined && adjacentMinesCount">
 			{{ adjacentMinesCount }}
 		</div>
