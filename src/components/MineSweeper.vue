@@ -83,7 +83,7 @@ for (let i = maxCell; i >= 0; i--) {
 
 const cells = ref(cellsInit)
 
-const onReveal = (cellIndex) => {
+const revealCellByIndex = (cellIndex) => {
 	const cell = cells.value[cellIndex]
 
 	if (cell.revealed) return
@@ -99,7 +99,7 @@ const onReveal = (cellIndex) => {
 		const adjacentIndices = getAdjacentCellsIndices(cellIndex)
 		for (let i = adjacentIndices.length - 1; i >= 0; i--) {
 			const adjacentIndex = adjacentIndices[i]
-			onReveal(adjacentIndex)
+			revealCellByIndex(adjacentIndex)
 		}
 	}
 }
@@ -113,7 +113,7 @@ const onReveal = (cellIndex) => {
 			:mined="cell.mined"
 			:revealed="cell.revealed"
 			:adjacentMinesCount="cell.adjacentMinesCount"
-			@reveal="onReveal"
+			@revealCellByIndex="revealCellByIndex"
 		/>
 	</div>
 </template>
