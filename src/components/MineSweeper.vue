@@ -14,6 +14,8 @@ const maxCell = cellsCount - 1
 
 const minesCount = 10
 
+const nonMinedCellsCount = cellsCount - minesCount
+
 const getIndexFromCoords = (column, row) => {
 	return rowsCount * row + column
 }
@@ -84,7 +86,7 @@ for (let i = maxCell; i >= 0; i--) {
 
 const cells = ref(cellsInit)
 
-const revealCellByIndex = (cellIndex) => {
+const revealCellByIndex = (cellIndex, shouldCheckWinCondition = true) => {
 	const cell = cells.value[cellIndex]
 
 	if (cell.state == cellState.revealed) return
@@ -93,15 +95,22 @@ const revealCellByIndex = (cellIndex) => {
 	cell.state = cellState.revealed
 
 	if (cell.mined) {
-		// @todo: end the game
-		//  - reveal all mines
-		//  - stop clickhandler
-		//  - add restart button
-	} else if (cell.adjacentMinesCount == 0) {
+		loose()
+		return
+	}
+
+	if (cell.adjacentMinesCount == 0) {
 		const adjacentIndices = getAdjacentCellsIndices(cellIndex)
 		for (let i = adjacentIndices.length - 1; i >= 0; i--) {
 			const adjacentIndex = adjacentIndices[i]
-			revealCellByIndex(adjacentIndex)
+			revealCellByIndex(adjacentIndex, false)
+		}
+	}
+
+	if (shouldCheckWinCondition) {
+		if (checkWinCondition()) {
+			win()
+			return
 		}
 	}
 }
@@ -115,6 +124,23 @@ const markCellByIndex = (cellIndex) => {
 	} else {
 		cell.state = cellState.marked
 	}
+}
+const checkWinCondition = () => {
+	let nonMinedRevealedCellsCount = 0
+	for (var i = cells.value.length - 1; i >= 0; i--) {
+		const cell = cells.value[i]
+		if (!cell.mined && cell.state == cellState.revealed) {
+			nonMinedRevealedCellsCount++
+		}
+	}
+
+	return nonMinedCellsCount == nonMinedRevealedCellsCount
+}
+const win = () => {
+	console.log('YOU WIN!')
+}
+const loose = () => {
+	console.log('You loose...')
 }
 </script>
 
