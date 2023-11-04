@@ -1,5 +1,6 @@
 <script setup>
 import Cell from './Cell.vue'
+import { ref } from 'vue'
 
 const rowsCount = 16
 const colsCount = 16
@@ -48,11 +49,11 @@ const getAdjacentCellsIndices = (index) => {
 	return result
 }
 
-const cells = Array(cellsCount)
+const cellsInit = Array(cellsCount)
 
 // build list of default cells
 for (var i = maxCell; i >= 0; i--) {
-	cells[i] = {
+	cellsInit[i] = {
 		mined: false,
 		revealed: false,
 		adjacentMinesCount: 0
@@ -61,7 +62,7 @@ for (var i = maxCell; i >= 0; i--) {
 
 // place mines by shuffling cells and selecting x first cells
 // @todo: implement a better randomisation of the cells
-const shuffledCells = cells.toSorted(() => 0.5 - Math.random())
+const shuffledCells = cellsInit.toSorted(() => 0.5 - Math.random())
 let selectedCells = shuffledCells.slice(0, minesCount)
 for (var i = selectedCells.length - 1; i >= 0; i--) {
 	selectedCells[i].mined = true
@@ -69,13 +70,37 @@ for (var i = selectedCells.length - 1; i >= 0; i--) {
 
 // compute adjacent mines number for each cells
 for (var i = maxCell; i >= 0; i--) {
-	let adjacentsIndices = getAdjacentCellsIndices(i)
-	for (var j = adjacentsIndices.length - 1; j >= 0; j--) {
-		let adjacentIndex = adjacentsIndices[j]
+	const adjacentIndices = getAdjacentCellsIndices(i)
+	for (var j = adjacentIndices.length - 1; j >= 0; j--) {
+		let adjacentIndex = adjacentIndices[j]
 		if (adjacentIndex >= 0 && adjacentIndex < cellsCount) {
-			if (cells[adjacentIndex].mined) {
-				cells[i].adjacentMinesCount++
+			if (cellsInit[adjacentIndex].mined) {
+				cellsInit[i].adjacentMinesCount++
 			}
+		}
+	}
+}
+
+const cells = ref(cellsInit)
+
+const onReveal = (cellIndex) => {
+	const cell = cells.value[cellIndex]
+
+	if (cell.revealed) return
+
+	cell.revealed = true
+
+	if (cell.mined) {
+		// @todo: end the game
+		//  - reveal all mines
+		//  - stop clickhandler
+		//  - add restart button
+	} else if (cell.adjacentMinesCount == 0) {
+		// @todo: propagate the reveal to all adjacent cells
+		const adjacentIndices = getAdjacentCellsIndices(cellIndex)
+		for (var i = adjacentIndices.length - 1; i >= 0; i--) {
+			const adjacentIndex = adjacentIndices[i]
+			onReveal(adjacentIndex)
 		}
 	}
 }
@@ -87,13 +112,14 @@ for (var i = maxCell; i >= 0; i--) {
 			v-for="(cell, index) in cells"
 			:index="index"
 			:mined="cell.mined"
-			:revealedInit="cell.revealed"
+			:revealed="cell.revealed"
 			:adjacentMinesCount="cell.adjacentMinesCount"
+			@reveal="onReveal"
 		/>
 	</div>
 </template>
 
-<style scoped>
+<style>
 .minefield {
 	margin: 0 auto;
 	width: 60%;
@@ -106,5 +132,32 @@ for (var i = maxCell; i >= 0; i--) {
 		margin: 0;
 		width: auto;
 	}
+}
+.cell {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	aspect-ratio: 1;
+	user-select: none;
+	color: #444;
+	background: #999;
+	container-type: inline-size;
+	font-size: 1.5cqi;
+}
+.cell .index {
+	font-size: 35cqi;
+}
+.cell.unrevealed {
+	border: 0.3rem outset #bbb;
+	cursor: pointer;
+}
+.cell.unrevealed:hover:active {
+	border: none;
+}
+.cell.mined {
+	background: #ff4a4a;
+}
+.cell.mined::before {
+	content: '⬤';
 }
 </style>
