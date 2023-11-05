@@ -2,6 +2,8 @@
 
 Rough implementation of the minesweeper game using vue3.
 
+You can see it running live [right here](https://minesweeper-vue3-wrkrxs-projects.vercel.app/).
+
 ## Project Setup
 
 ```sh
