@@ -18,31 +18,29 @@ import MineSweeper from './components/MineSweeper.vue'
 
 <style scoped>
 header {
-  line-height: 1.5;
+  display: flex;
+  place-items: center;
+  justify-content: center;
   padding-bottom: calc(var(--section-gap) / 4);
+  line-height: 1.5;
 }
 
-.logo {
+header .logo {
   display: block;
   margin: 0 auto 2rem;
+  margin: 0 2rem 0 0;
+}
+
+header .wrapper {
+  display: flex;
+  place-items: flex-start;
+  flex-wrap: wrap;
 }
 
 @media (min-width: 1024px) {
   header {
-    display: flex;
-    place-items: center;
     padding-bottom: 0;
     padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
   }
 }
 </style>

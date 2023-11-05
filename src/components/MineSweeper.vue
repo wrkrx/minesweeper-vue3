@@ -12,7 +12,7 @@ const maxCol = colsCount - 1
 const cellsCount = rowsCount * colsCount
 const maxCell = cellsCount - 1
 
-const minesCount = 30
+const minesCount = 15
 
 const nonMinedCellsCount = cellsCount - minesCount
 
@@ -88,6 +88,7 @@ const cells = ref(cellsInit)
 let gameOver = ref(false)
 let gameOverMessage = ref(undefined)
 let gameOverGifUrl = ref(undefined)
+let markedCellsCount = ref(minesCount)
 
 const revealCellByIndex = (cellIndex, shouldCheckWinCondition = true) => {
 	if (gameOver.value) return
@@ -121,14 +122,19 @@ const revealCellByIndex = (cellIndex, shouldCheckWinCondition = true) => {
 }
 const markCellByIndex = (cellIndex) => {
 	if (gameOver.value) return
+
 	const cell = cells.value[cellIndex]
 
 	if (cell.state == cellState.revealed) return
 
 	if (cell.state == cellState.marked) {
 		cell.state = cellState.fresh
+		markedCellsCount.value++
 	} else {
-		cell.state = cellState.marked
+		if (markedCellsCount.value) {
+			cell.state = cellState.marked
+			markedCellsCount.value--
+		}
 	}
 }
 const checkWinCondition = () => {
@@ -144,8 +150,11 @@ const checkWinCondition = () => {
 }
 const win = () => {
 	gameOver.value = true
-	gameOverMessage.value = 'You win!'
-	displayRandomGifFromKeyword('victory')
+	markedCellsCount.value = 0
+	setTimeout(function () {
+		gameOverMessage.value = 'You win!'
+		displayRandomGifFromKeyword('victory')
+	}, 500)
 }
 const loose = () => {
 	gameOver.value = true
@@ -193,20 +202,24 @@ function httpGetAsync(theUrl, callback) {
 </script>
 
 <template>
-	<div
-		v-if="!gameOverGifUrl"
-		class="minefield"
-		:class="{ gameOver: gameOver, gameRunning: !gameOver }"
-	>
-		<Cell
-			v-for="(cell, index) in cells"
-			:index="index"
-			:mined="cell.mined"
-			:state="cell.state"
-			:adjacentMinesCount="cell.adjacentMinesCount"
-			@revealCellByIndex="revealCellByIndex"
-			@markCellByIndex="markCellByIndex"
-		/>
+	<div class="game" v-if="!gameOverGifUrl" :class="{ gameRunning: !gameOver }">
+		<div class="board">
+			<div class="minecount">
+				<div class="background">888</div>
+				<div class="foreground">{{ markedCellsCount.toString().padStart(3, '0') }}</div>
+			</div>
+		</div>
+		<div class="minefield">
+			<Cell
+				v-for="(cell, index) in cells"
+				:index="index"
+				:mined="cell.mined"
+				:state="cell.state"
+				:adjacentMinesCount="cell.adjacentMinesCount"
+				@revealCellByIndex="revealCellByIndex"
+				@markCellByIndex="markCellByIndex"
+			/>
+		</div>
 	</div>
 
 	<div v-if="gameOverGifUrl" class="gameOverResult">
@@ -215,16 +228,45 @@ function httpGetAsync(theUrl, callback) {
 	</div>
 </template>
 
-<style>
-.minefield {
+<style scoped>
+.game {
 	margin: 0 auto;
 	width: 60%;
+	border: 0.3rem outset #bbb;
+	background: var(--color-background-game);
+	user-select: none;
+}
+.board {
+	border: 0.3rem inset #bbb;
+	display: flex;
+	justify-content: center;
+}
+.board .minecount {
+	margin: 0.2rem;
+	border: 0.2rem inset #bbb;
+	padding: 0.1rem;
+	color: #ff0000;
+	background-color: #000;
+	font-family: '7segments';
+	font-size: 2rem;
+	line-height: 1em;
+	font-weight: bold;
+	cursor: default;
+}
+.board .minecount .background {
+	position: absolute;
+	color: #ff000058;
+}
+.minefield {
 	display: grid;
 	grid-template-columns: repeat(16, 1fr);
 	grid-template-rows: repeat(16, 1fr);
-	border: 0.6rem ridge #bbb;
+	border: 0.3rem inset #bbb;
 }
 @media (min-width: 1024px) {
+	.game {
+		width: auto;
+	}
 	.minefield {
 		margin: 0;
 		width: auto;
@@ -235,9 +277,7 @@ function httpGetAsync(theUrl, callback) {
 	justify-content: center;
 	align-items: center;
 	aspect-ratio: 1;
-	user-select: none;
 	color: #444;
-	background: #999;
 	container-type: inline-size;
 	font-size: 1cqi;
 }
@@ -254,16 +294,9 @@ function httpGetAsync(theUrl, callback) {
 .gameRunning .cell.fresh:hover:active {
 	border: none;
 }
-.cell.marked::before {
-	content: '🚩';
-}
 .cell.mined {
 	background: #ff4a4a;
 }
-.cell.mined::before {
-	content: '⬤';
-}
-
 .gameOverResult {
 	display: flex;
 	flex-direction: column;

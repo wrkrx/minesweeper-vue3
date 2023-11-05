@@ -1,5 +1,4 @@
 <script setup>
-import { config } from '@/stores/config.js'
 import { cellState } from '@/stores/enums.js'
 
 const props = defineProps({
@@ -41,7 +40,8 @@ const onRightClick = () => {
 		@click.stop.prevent="onClick"
 		@contextmenu.stop.prevent="onRightClick"
 	>
-		<div class="index" v-if="config.debug && state == cellState.fresh">{{ index }}</div>
+		<div v-if="state == cellState.marked">🚩</div>
+		<div v-if="state == cellState.revealed && mined">⬤</div>
 		<div
 			class="adjacentMinesCount"
 			v-if="state == cellState.revealed && !mined && adjacentMinesCount"
