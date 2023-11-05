@@ -239,7 +239,7 @@ function httpGetAsync(theUrl, callback) {
 	color: #444;
 	background: #999;
 	container-type: inline-size;
-	font-size: 1.1cqi;
+	font-size: 1cqi;
 }
 .cell .index {
 	font-size: 35cqi;
