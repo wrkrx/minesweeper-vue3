@@ -10,11 +10,10 @@ defineProps({
 <template>
   <div class="greetings">
     <h1 class="green">{{ msg }}</h1>
-    <h3>
-      Created using
-      <a href="https://vitejs.dev/" target="_blank" rel="noopener">Vite</a> +
-      <a href="https://vuejs.org/" target="_blank" rel="noopener">Vue 3</a>.
-    </h3>
+    <p>
+      Check out the code behind on
+      <a href="https://github.com/wrkrx/minesweeper-vue3">GitHub</a>.
+    </p>
   </div>
 </template>
 
@@ -27,17 +26,17 @@ h1 {
 }
 
 h3 {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
 }
 
 .greetings h1,
-.greetings h3 {
+.greetings p {
   text-align: center;
 }
 
 @media (min-width: 1024px) {
   .greetings h1,
-  .greetings h3 {
+  .greetings p {
     text-align: left;
   }
 }
