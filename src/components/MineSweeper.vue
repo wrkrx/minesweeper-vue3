@@ -12,7 +12,7 @@ const maxCol = colsCount - 1
 const cellsCount = rowsCount * colsCount
 const maxCell = cellsCount - 1
 
-const minesCount = 15
+const minesCount = 20
 
 const nonMinedCellsCount = cellsCount - minesCount
 
