@@ -1,5 +1,5 @@
 <script setup>
-import Cell from './Cell.vue'
+import CellComp from './Cell.vue'
 import { ref } from 'vue'
 import { cellState } from '@/stores/enums.js'
 
@@ -231,7 +231,7 @@ function httpGetAsync(theUrl, callback) {
 			</div>
 		</div>
 		<div class="minefield">
-			<Cell
+			<CellComp
 				v-for="(cell, index) in cells"
 				:index="index"
 				:mined="cell.mined"
