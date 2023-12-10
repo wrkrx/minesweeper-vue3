@@ -16,6 +16,28 @@ const minesCount = 15
 
 const nonMinedCellsCount = cellsCount - minesCount
 
+/* return a random integer between the specified values (inclusive) */
+const randInt = (min, max) => {
+	min = Math.ceil(min)
+	max = Math.floor(max)
+	return Math.floor(Math.random() * (max - min + 1) + min)
+}
+
+/* Return a copy of the array in shuffled order */
+const shuffle = (array) => {
+	// copy the array
+	const shuffledArray = [...array]
+
+	for (var index = shuffledArray.length - 1; index >= 1; index--) {
+		const randomIndex = randInt(0, index)
+		// swap values at index index and randomIndex
+		const tempVal = shuffledArray[index]
+		shuffledArray[index] = shuffledArray[randomIndex]
+		shuffledArray[randomIndex] = tempVal
+	}
+	return shuffledArray
+}
+
 const getIndexFromCoords = (column, row) => {
 	return rowsCount * row + column
 }
@@ -64,8 +86,7 @@ for (let i = maxCell; i >= 0; i--) {
 }
 
 // place mines by shuffling cells and selecting x first cells
-// @todo: implement a better randomisation of the cells
-const shuffledCells = cellsInit.toSorted(() => 0.5 - Math.random())
+const shuffledCells = shuffle(cellsInit)
 const selectedCells = shuffledCells.slice(0, minesCount)
 for (let i = selectedCells.length - 1; i >= 0; i--) {
 	selectedCells[i].mined = true
