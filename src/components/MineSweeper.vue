@@ -106,13 +106,22 @@ for (let i = maxCell; i >= 0; i--) {
 }
 
 const cells = ref(cellsInit)
+let gameStarted = ref(false)
 let gameOver = ref(false)
 let gameOverMessage = ref(undefined)
 let gameOverGifUrl = ref(undefined)
 let markedCellsCount = ref(minesCount)
+let timer = ref(0)
+let timerId = undefined
 
 const revealCellByIndex = (cellIndex, shouldCheckWinCondition = true) => {
 	if (gameOver.value) return
+	if (!gameStarted.value) {
+		gameStarted.value = true
+		timerId = setInterval(function () {
+			if (timer.value < 999) timer.value = timer.value + 1
+		}, 1000)
+	}
 
 	const cell = cells.value[cellIndex]
 
@@ -171,6 +180,7 @@ const checkWinCondition = () => {
 }
 const win = () => {
 	gameOver.value = true
+	clearInterval(timerId)
 	markedCellsCount.value = 0
 	setTimeout(function () {
 		gameOverMessage.value = 'You win!'
@@ -179,6 +189,7 @@ const win = () => {
 }
 const loose = () => {
 	gameOver.value = true
+	clearInterval(timerId)
 	setTimeout(function () {
 		gameOverMessage.value = 'BOOOOOOOOM!!!'
 		displayRandomGifFromKeyword('explosion')
@@ -225,9 +236,11 @@ function httpGetAsync(theUrl, callback) {
 <template>
 	<div class="game" v-if="!gameOverGifUrl" :class="{ gameRunning: !gameOver }">
 		<div class="board">
-			<div class="minecount">
-				<div class="background">888</div>
-				<div class="foreground">{{ markedCellsCount.toString().padStart(3, '0') }}</div>
+			<div class="digitalDisplay minecount">
+				{{ markedCellsCount.toString().padStart(3, '0') }}
+			</div>
+			<div class="digitalDisplay timer">
+				{{ timer.toString().padStart(3, '0') }}
 			</div>
 		</div>
 		<div class="minefield">
@@ -260,9 +273,14 @@ function httpGetAsync(theUrl, callback) {
 .board {
 	border: 0.3rem inset #bbb;
 	display: flex;
-	justify-content: center;
+	justify-content: space-between;
 }
-.board .minecount {
+.board .digitalDisplay::before {
+	content: '888';
+	position: absolute;
+	color: #ff000058;
+}
+.board .digitalDisplay {
 	margin: 0.2rem;
 	border: 0.2rem inset #bbb;
 	padding: 0.1rem;
@@ -273,10 +291,6 @@ function httpGetAsync(theUrl, callback) {
 	line-height: 1em;
 	font-weight: bold;
 	cursor: default;
-}
-.board .minecount .background {
-	position: absolute;
-	color: #ff000058;
 }
 .minefield {
 	display: grid;
