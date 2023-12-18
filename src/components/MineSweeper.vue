@@ -143,11 +143,9 @@ const revealCellByIndex = (cellIndex, shouldCheckWinCondition = true) => {
 		}
 	}
 
-	if (shouldCheckWinCondition) {
-		if (checkWinCondition()) {
-			win()
-			return
-		}
+	if (shouldCheckWinCondition && checkWinCondition()) {
+		win()
+		return
 	}
 }
 const markCellByIndex = (cellIndex) => {
