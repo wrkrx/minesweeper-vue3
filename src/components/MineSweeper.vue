@@ -74,38 +74,8 @@ const getAdjacentCellsIndices = (index) => {
 	return result
 }
 
-const cellsInit = Array(cellsCount)
-
-// build list of default cells
-for (let i = maxCell; i >= 0; i--) {
-	cellsInit[i] = {
-		mined: false,
-		state: cellState.fresh,
-		adjacentMinesCount: 0
-	}
-}
-
-// place mines by shuffling cells and selecting x first cells
-const shuffledCells = shuffle(cellsInit)
-const selectedCells = shuffledCells.slice(0, minesCount)
-for (let i = selectedCells.length - 1; i >= 0; i--) {
-	selectedCells[i].mined = true
-}
-
-// compute adjacent mines number for each cells
-for (let i = maxCell; i >= 0; i--) {
-	const adjacentIndices = getAdjacentCellsIndices(i)
-	for (let j = adjacentIndices.length - 1; j >= 0; j--) {
-		const adjacentIndex = adjacentIndices[j]
-		if (adjacentIndex >= 0 && adjacentIndex < cellsCount) {
-			if (cellsInit[adjacentIndex].mined) {
-				cellsInit[i].adjacentMinesCount++
-			}
-		}
-	}
-}
-
-const cells = ref(cellsInit)
+// our state
+let cells = ref(undefined)
 let gameStarted = ref(false)
 let gameOver = ref(false)
 let gameOverMessage = ref(undefined)
@@ -114,6 +84,47 @@ let markedCellsCount = ref(minesCount)
 let timer = ref(0)
 let timerId = undefined
 
+const start = () => {
+	let cellsInit = Array(cellsCount)
+
+	// build list of default cells
+	for (let i = maxCell; i >= 0; i--) {
+		cellsInit[i] = {
+			mined: false,
+			state: cellState.fresh,
+			adjacentMinesCount: 0
+		}
+	}
+
+	// place mines by shuffling cells and selecting x first cells
+	const shuffledCells = shuffle(cellsInit)
+	const selectedCells = shuffledCells.slice(0, minesCount)
+	for (let i = selectedCells.length - 1; i >= 0; i--) {
+		selectedCells[i].mined = true
+	}
+
+	// compute adjacent mines number for each cells
+	for (let i = maxCell; i >= 0; i--) {
+		const adjacentIndices = getAdjacentCellsIndices(i)
+		for (let j = adjacentIndices.length - 1; j >= 0; j--) {
+			const adjacentIndex = adjacentIndices[j]
+			if (adjacentIndex >= 0 && adjacentIndex < cellsCount) {
+				if (cellsInit[adjacentIndex].mined) {
+					cellsInit[i].adjacentMinesCount++
+				}
+			}
+		}
+	}
+
+	cells.value = cellsInit
+	gameStarted.value = false
+	gameOver.value = false
+	gameOverMessage.value = undefined
+	gameOverGifUrl.value = undefined
+	markedCellsCount.value = minesCount
+	timer.value = 0
+	timerId = undefined
+}
 const revealCellByIndex = (cellIndex, shouldCheckWinCondition = true) => {
 	if (gameOver.value) return
 	if (!gameStarted.value) {
@@ -229,6 +240,8 @@ function httpGetAsync(theUrl, callback) {
 
 	return
 }
+
+start()
 </script>
 
 <template>
@@ -237,6 +250,7 @@ function httpGetAsync(theUrl, callback) {
 			<div class="digitalDisplay minecount">
 				{{ markedCellsCount.toString().padStart(3, '0') }}
 			</div>
+			<button :disabled="!gameOver" class="restart" @click.stop.prevent="start">Restart</button>
 			<div class="digitalDisplay timer">
 				{{ timer.toString().padStart(3, '0') }}
 			</div>
@@ -273,6 +287,17 @@ function httpGetAsync(theUrl, callback) {
 .scoreboard {
 	display: flex;
 	justify-content: space-between;
+}
+.restart {
+	border: 0.3rem outset #bbb;
+	background-color: inherit;
+	margin: 0.5em;
+}
+.restart:not(:disabled) {
+	cursor: pointer;
+}
+.restart:not(:disabled):active {
+	border: 0.3rem inset #bbb;
 }
 .digitalDisplay {
 	margin: 0.2rem;
