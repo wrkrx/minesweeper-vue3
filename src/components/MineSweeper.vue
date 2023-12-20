@@ -232,8 +232,8 @@ function httpGetAsync(theUrl, callback) {
 </script>
 
 <template>
-	<div class="game" v-if="!gameOverGifUrl" :class="{ gameRunning: !gameOver }">
-		<div class="board">
+	<div class="game" :class="{ gameRunning: !gameOver }">
+		<div class="panel scoreboard">
 			<div class="digitalDisplay minecount">
 				{{ markedCellsCount.toString().padStart(3, '0') }}
 			</div>
@@ -241,7 +241,7 @@ function httpGetAsync(theUrl, callback) {
 				{{ timer.toString().padStart(3, '0') }}
 			</div>
 		</div>
-		<div class="minefield">
+		<div class="panel minefield">
 			<CellComp
 				v-for="(cell, index) in cells"
 				:index="index"
@@ -251,12 +251,11 @@ function httpGetAsync(theUrl, callback) {
 				@revealCellByIndex="revealCellByIndex"
 				@markCellByIndex="markCellByIndex"
 			/>
+			<div v-if="gameOverGifUrl" class="gameOverResult">
+				<p class="message">{{ gameOverMessage }}</p>
+				<img :src="gameOverGifUrl" />
+			</div>
 		</div>
-	</div>
-
-	<div v-if="gameOverGifUrl" class="gameOverResult">
-		<p class="message">{{ gameOverMessage }}</p>
-		<img :src="gameOverGifUrl" />
 	</div>
 </template>
 
@@ -268,17 +267,14 @@ function httpGetAsync(theUrl, callback) {
 	background: var(--color-background-game);
 	user-select: none;
 }
-.board {
+.panel {
 	border: 0.3rem inset #bbb;
+}
+.scoreboard {
 	display: flex;
 	justify-content: space-between;
 }
-.board .digitalDisplay::before {
-	content: '888';
-	position: absolute;
-	color: #ff000058;
-}
-.board .digitalDisplay {
+.digitalDisplay {
 	margin: 0.2rem;
 	border: 0.2rem inset #bbb;
 	padding: 0.1rem;
@@ -290,20 +286,16 @@ function httpGetAsync(theUrl, callback) {
 	font-weight: bold;
 	cursor: default;
 }
+.digitalDisplay::before {
+	content: '888';
+	position: absolute;
+	color: #ff000058;
+}
 .minefield {
+	position: relative;
 	display: grid;
 	grid-template-columns: repeat(16, 1fr);
 	grid-template-rows: repeat(16, 1fr);
-	border: 0.3rem inset #bbb;
-}
-@media (min-width: 1024px) {
-	.game {
-		width: auto;
-	}
-	.minefield {
-		margin: 0;
-		width: auto;
-	}
 }
 .cell {
 	display: flex;
@@ -314,25 +306,27 @@ function httpGetAsync(theUrl, callback) {
 	container-type: inline-size;
 	font-size: 1cqi;
 }
-.cell .index {
-	font-size: 35cqi;
-}
 .cell.fresh,
 .cell.marked {
 	border: 0.3rem outset #bbb;
 }
-.gameRunning .cell.fresh {
+.cell.fresh {
 	cursor: pointer;
 }
-.gameRunning .cell.fresh:hover:active {
+.cell.fresh:hover:active {
 	border: none;
 }
 .cell.mined {
 	background: #ff4a4a;
 }
 .gameOverResult {
+	position: absolute;
+	width: 100%;
+	height: 100%;
 	display: flex;
 	flex-direction: column;
+	justify-content: space-evenly;
+	background-color: #000000c2;
 }
 .gameOverResult .message {
 	text-align: center;
@@ -340,6 +334,17 @@ function httpGetAsync(theUrl, callback) {
 	color: hsla(160, 100%, 37%, 1);
 }
 .gameOverResult img {
-	margin: auto;
+	width: 100%;
+	max-height: calc(100% - 3em);
+}
+
+@media (min-width: 1024px) {
+	.game {
+		width: auto;
+	}
+	.minefield {
+		margin: 0;
+		width: auto;
+	}
 }
 </style>
